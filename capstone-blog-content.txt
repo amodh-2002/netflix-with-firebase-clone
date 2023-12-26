@@ -1,0 +1,57 @@
+import React, { useEffect, useState } from 'react';
+import { request, gql } from 'graphql-request';
+import './App.css'
+
+const GRAPH_CMS_ENDPOINT = 'https://api-ap-south-1.hygraph.com/v2/clqiexyil6xet01tcbs3ego21/master'; // Replace with your actual GraphCMS endpoint
+const GRAPHQL_QUERY = gql`
+{
+  posts{
+    id,
+    title,
+    datePublished,
+    slug,
+    content{
+      html
+    }
+    author{
+      name
+    }
+    coverPhoto{
+      url
+    }
+  }
+}
+`;
+
+function App() {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await request(GRAPH_CMS_ENDPOINT, GRAPHQL_QUERY);
+        setPosts(data.posts);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <div>
+      <h1>Posts</h1>
+      {posts.map((post, index) => (
+        <div key={index}>
+          <h2>{post.title}</h2>
+          <p>{post.datePublished}</p>
+          <img src={post.coverPhoto.url} alt={post.title} />
+          {/* Render other fields as needed */}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default App
